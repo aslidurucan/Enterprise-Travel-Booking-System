@@ -1,0 +1,27 @@
+﻿using Catalog.Application.Features.Vehicles.Commands.CreateVehicle;
+using MediatR;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+
+namespace Catalog.API.Controllers
+{
+    
+    [Route("api/[controller]")]
+    [ApiController]
+    public class VehiclesController : ControllerBase
+    {
+        private readonly IMediator _mediator;
+
+        public VehiclesController(IMediator mediator)
+        {
+            _mediator = mediator;
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> CreateVehicle([FromBody] CreateVehicleCommand command)
+        {
+            var vehicleId = await _mediator.Send(command);
+            return Ok(new { Id = vehicleId, Message = "Araç başarıyla eklendi!" });
+        }
+    }
+}
