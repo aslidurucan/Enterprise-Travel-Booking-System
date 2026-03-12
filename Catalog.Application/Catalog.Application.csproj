@@ -7,15 +7,27 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Features\NewFolder\**" />
+    <Compile Remove="Features\Vehicles\NewFolder1\**" />
+    <Compile Remove="Features\Vehicles\NewFolder2\**" />
+    <Compile Remove="Features\Vehicles\NewFolder\**" />
+    <EmbeddedResource Remove="Features\NewFolder\**" />
+    <EmbeddedResource Remove="Features\Vehicles\NewFolder1\**" />
+    <EmbeddedResource Remove="Features\Vehicles\NewFolder2\**" />
+    <EmbeddedResource Remove="Features\Vehicles\NewFolder\**" />
+    <None Remove="Features\NewFolder\**" />
+    <None Remove="Features\Vehicles\NewFolder1\**" />
+    <None Remove="Features\Vehicles\NewFolder2\**" />
+    <None Remove="Features\Vehicles\NewFolder\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="12.1.1" />
     <PackageReference Include="MediatR" Version="14.1.0" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Catalog.Domain\Catalog.Domain.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Features\Vehicles\Queries\" />
   </ItemGroup>
 
 </Project>
