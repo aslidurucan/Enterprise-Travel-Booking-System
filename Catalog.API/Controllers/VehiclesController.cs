@@ -1,4 +1,5 @@
 ﻿using Catalog.Application.Features.Vehicles.Commands.CreateVehicle;
+using Catalog.Application.Features.Vehicles.Queries.GetAllVehicles;
 using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -22,6 +23,14 @@ namespace Catalog.API.Controllers
         {
             var vehicleId = await _mediator.Send(command);
             return Ok(new { Id = vehicleId, Message = "Araç başarıyla eklendi!" });
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetAllVehicles()
+        {
+            var vehicles = await _mediator.Send(new GetAllVehiclesQuery());
+
+            return Ok(vehicles);
         }
     }
 }
