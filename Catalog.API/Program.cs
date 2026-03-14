@@ -34,4 +34,20 @@ app.UseAuthorization();
 
 app.MapControllers();
 
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    try
+    {
+        var context = services.GetRequiredService<Catalog.Infrastructure.Persistence.CatalogDbContext>();
+
+        context.Database.Migrate();
+
+        await Catalog.Infrastructure.Persistence.CatalogDbContextSeed.SeedAsync(context);
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"Veritaban?na tohumlama yap?l?rken bir hata olu?tu: {ex.Message}");
+    }
+}
 app.Run();

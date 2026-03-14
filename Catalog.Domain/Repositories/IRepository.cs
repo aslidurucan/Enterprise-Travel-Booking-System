@@ -14,5 +14,6 @@ namespace Catalog.Domain.Repositories
         Task<T> AddAsync(T entity);
         Task UpdateAsync(T entity);
         Task DeleteAsync(T entity);
+        Task<T> UpdateByIdAsync(T entity);
     }
 }

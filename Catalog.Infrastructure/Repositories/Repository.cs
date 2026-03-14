@@ -39,7 +39,7 @@ namespace Catalog.Infrastructure.Repositories
 
         public async Task UpdateAsync(T entity)
         {
-            _context.Entry(entity).State = EntityState.Modified;
+            _context.Set<T>().Update(entity);
             await _context.SaveChangesAsync();
         }
 
@@ -47,6 +47,11 @@ namespace Catalog.Infrastructure.Repositories
         {
             _context.Set<T>().Remove(entity);
             await _context.SaveChangesAsync();
+        }
+
+        public Task<T> UpdateByIdAsync(T entity)
+        {
+            throw new NotImplementedException();
         }
     }
 }
