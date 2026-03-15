@@ -23,7 +23,7 @@ namespace Catalog.API.Controllers
             _mediator = mediator;
         }
 
-        [Authorize]
+        [Authorize(Roles = "Admin")]
         [HttpPost]
         public async Task<IActionResult> CreateVehicle([FromBody] CreateVehicleCommand command)
         {
@@ -39,7 +39,7 @@ namespace Catalog.API.Controllers
             return Ok(vehicles);
         }
 
-        [Authorize]
+        [Authorize(Roles = "Admin")]
         [HttpPut]
         public async Task<IActionResult> UpdateVehicle([FromBody] UpdateVehicleCommand command)
         {
@@ -47,7 +47,7 @@ namespace Catalog.API.Controllers
             return Ok(new { Message = "Araç başarıyla güncellendi!" });
         }
 
-        [Authorize]
+        [Authorize(Roles = "Admin")]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteVehicle(Guid id)
         {
