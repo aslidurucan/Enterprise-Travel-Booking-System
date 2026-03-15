@@ -2,6 +2,8 @@
 using Catalog.Application.Features.Vehicles.Commands.DeleteVehicle;
 using Catalog.Application.Features.Vehicles.Commands.UpdateVehicle;
 using Catalog.Application.Features.Vehicles.Queries.GetAllVehicles;
+using Catalog.Application.Features.Vehicles.Queries.GetPagedVehicles;
+using Catalog.Application.Features.Vehicles.Queries.GetVehicleById;
 using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -49,5 +51,24 @@ namespace Catalog.API.Controllers
             await _mediator.Send(command);
             return Ok(new { Message = "Araç başarıyla silindi!" });
         }
+
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetVehicleById(Guid id)
+        {
+            var query = new GetVehicleByIdQuery { Id = id };
+
+            var result = await _mediator.Send(query);
+
+            return Ok(result);
+        }
+        [HttpGet("paged")]
+        public async Task<IActionResult> GetPagedVehicles([FromQuery] GetPagedVehiclesQuery query)
+        {
+            var result = await _mediator.Send(query);
+
+            return Ok(result);
+        }
+
     }
 }
+

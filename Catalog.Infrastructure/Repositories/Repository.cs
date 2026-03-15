@@ -53,5 +53,15 @@ namespace Catalog.Infrastructure.Repositories
         {
             throw new NotImplementedException();
         }
+
+        public async Task<PaginatedResult<T>> GetPagedAsync(int pageIndex, int pageSize)
+        {
+            var totalCount = await _context.Set<T>().CountAsync();
+            var items = await _context.Set<T>()
+                .Skip((pageIndex - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+            return new PaginatedResult<T>(items, totalCount, pageIndex, pageSize);
+        }
     }
 }
