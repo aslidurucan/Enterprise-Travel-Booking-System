@@ -33,6 +33,13 @@ namespace Catalog.API.Controllers
                 return Ok(new { Token = token, Message = "Giriş başarılı! Bu Token'ı Swagger'a kopyalayın." });
             }
 
+            // 2. Senaryo: Normal Müşteri Girişi (TEST İÇİN EKLİYORUZ)
+            if (request.Username == "asli" && request.Password == "123456")
+            {
+                var token = _jwtProvider.GenerateToken(request.Username, "User");
+                return Ok(new { Token = token, Message = "Müşteri girişi başarılı!" });
+            }
+
             return Unauthorized("Kullanıcı adı veya şifre hatalı!");
         }
     }
