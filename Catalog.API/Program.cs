@@ -3,7 +3,11 @@ using Catalog.Application.Features.Vehicles.Commands.CreateVehicle;
 using FluentValidation;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 using Microsoft.Extensions.Configuration;
+using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -21,11 +25,55 @@ builder.Services.AddValidatorsFromAssembly(typeof(Catalog.Application.Features.V
 builder.Services.AddScoped<Catalog.Domain.Repositories.IVehicleRepository, Catalog.Infrastructure.Repositories.VehicleRepository>();
 builder.Services.AddDistributedMemoryCache();
 builder.Services.AddControllers();
+builder.Services.AddScoped<Catalog.Application.Security.IJwtProvider, Catalog.Infrastructure.Security.JwtProvider>();
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+
+            ValidIssuer = builder.Configuration["JwtSettings:Issuer"],
+            ValidAudience = builder.Configuration["JwtSettings:Audience"],
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JwtSettings:SecretKey"]))
+        };
+    });
 builder.Services.AddExceptionHandler<Catalog.API.Exceptions.GlobalExceptionHandler>();
 builder.Services.AddProblemDetails();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(c =>
+{
+    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        Description = "JWT Kimlik Do?rulama ba?l???. \r\n\r\n A?a??daki kutuya 'Bearer' yaz?p bo?luk b?rakt?ktan sonra Token'?n?z? yap??t?r?n.\r\n\r\n÷rnek: 'Bearer eyJhbGci...'",
+        Name = "Authorization", 
+        In = ParameterLocation.Header, 
+        Type = SecuritySchemeType.ApiKey,
+        Scheme = "Bearer"
+    });
+
+    c.AddSecurityRequirement(new OpenApiSecurityRequirement()
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
+                {
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                },
+                Scheme = "oauth2",
+                Name = "Bearer",
+                In = ParameterLocation.Header,
+            },
+            new List<string>()
+        }
+    });
+});
 
 var app = builder.Build();
 
@@ -38,6 +86,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseExceptionHandler();
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();

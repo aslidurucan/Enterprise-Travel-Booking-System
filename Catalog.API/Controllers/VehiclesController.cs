@@ -7,6 +7,7 @@ using Catalog.Application.Features.Vehicles.Queries.GetVehicleById;
 using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Catalog.API.Controllers
 {
@@ -22,6 +23,7 @@ namespace Catalog.API.Controllers
             _mediator = mediator;
         }
 
+        [Authorize]
         [HttpPost]
         public async Task<IActionResult> CreateVehicle([FromBody] CreateVehicleCommand command)
         {
@@ -37,6 +39,7 @@ namespace Catalog.API.Controllers
             return Ok(vehicles);
         }
 
+        [Authorize]
         [HttpPut]
         public async Task<IActionResult> UpdateVehicle([FromBody] UpdateVehicleCommand command)
         {
@@ -44,6 +47,7 @@ namespace Catalog.API.Controllers
             return Ok(new { Message = "Araç başarıyla güncellendi!" });
         }
 
+        [Authorize]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteVehicle(Guid id)
         {
