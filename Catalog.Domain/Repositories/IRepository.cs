@@ -15,5 +15,6 @@ namespace Catalog.Domain.Repositories
         Task UpdateAsync(T entity);
         Task DeleteAsync(T entity);
         Task<T> UpdateByIdAsync(T entity);
+        Task<PaginatedResult<T>> GetPagedAsync(int pageIndex, int pageSize);
     }
 }

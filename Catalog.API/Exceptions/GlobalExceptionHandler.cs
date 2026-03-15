@@ -30,7 +30,7 @@ namespace Catalog.API.Exceptions
                 return true;
             }
 
-            return false;
+             return false;
         }
     }
 }

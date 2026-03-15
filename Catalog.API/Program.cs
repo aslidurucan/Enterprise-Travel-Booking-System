@@ -1,17 +1,25 @@
+using Catalog.Application.Behaviors;
 using Catalog.Application.Features.Vehicles.Commands.CreateVehicle;
 using FluentValidation;
+using MediatR;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddDbContext<Catalog.Infrastructure.Persistence.CatalogDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
-builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(CreateVehicleCommand).Assembly));
-builder.Services.AddValidatorsFromAssembly(typeof(Catalog.Application.Features.Vehicles.Commands.CreateVehicle.CreateVehicleCommand).Assembly);
+builder.Services.AddMediatR(cfg =>
+{
+cfg.RegisterServicesFromAssembly(typeof(CreateVehicleCommand).Assembly);
+cfg.AddBehavior(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
+cfg.AddBehavior(typeof(IPipelineBehavior<,>), typeof(CachingBehavior<,>));
+});
 
-builder.Services.AddTransient(typeof(MediatR.IPipelineBehavior<,>), typeof(Catalog.Application.Behaviors.ValidationBehavior<,>));
+builder.Services.AddValidatorsFromAssembly(typeof(Catalog.Application.Features.Vehicles.Commands.CreateVehicle.CreateVehicleCommand).Assembly);
 builder.Services.AddScoped<Catalog.Domain.Repositories.IVehicleRepository, Catalog.Infrastructure.Repositories.VehicleRepository>();
+builder.Services.AddDistributedMemoryCache();
 builder.Services.AddControllers();
 builder.Services.AddExceptionHandler<Catalog.API.Exceptions.GlobalExceptionHandler>();
 builder.Services.AddProblemDetails();
