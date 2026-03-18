@@ -9,6 +9,7 @@ namespace Catalog.Application.Caching
     public interface ICacheableQuery
     {
         string CacheKey { get; }
+        bool BypassCache { get; }
         TimeSpan? SlidingExpiration { get; }
     }
 }

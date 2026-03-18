@@ -30,11 +30,16 @@ builder.Services.AddMediatR(cfg =>
 cfg.RegisterServicesFromAssembly(typeof(CreateVehicleCommand).Assembly);
 cfg.AddBehavior(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
 cfg.AddBehavior(typeof(IPipelineBehavior<,>), typeof(CachingBehavior<,>));
+
 });
 
 builder.Services.AddValidatorsFromAssembly(typeof(Catalog.Application.Features.Vehicles.Commands.CreateVehicle.CreateVehicleCommand).Assembly);
 builder.Services.AddScoped<Catalog.Domain.Repositories.IVehicleRepository, Catalog.Infrastructure.Repositories.VehicleRepository>();
-builder.Services.AddDistributedMemoryCache();
+builder.Services.AddStackExchangeRedisCache(options =>
+{
+    options.Configuration = "localhost:6379";
+    options.InstanceName = "WanderSync_Catalog_";
+});
 builder.Services.AddControllers();
 builder.Services.AddScoped<Catalog.Application.Security.IJwtProvider, Catalog.Infrastructure.Security.JwtProvider>();
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
