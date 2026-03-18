@@ -24,5 +24,7 @@ namespace Catalog.Application.Features.Vehicles.Queries.GetPagedVehicles
         [BindNever]
         [JsonIgnore]
         public TimeSpan? SlidingExpiration => TimeSpan.FromMinutes(5);
+
+        public bool BypassCache => false;
     }
 }
