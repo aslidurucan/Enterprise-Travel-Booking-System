@@ -17,6 +17,7 @@ builder.Host.UseSerilog((context, configuration) =>
         .ReadFrom.Configuration(context.Configuration)
         .WriteTo.Console()
         .WriteTo.File("Logs/WanderSync-Log-.txt", rollingInterval: RollingInterval.Day)
+        .WriteTo.Seq("http://localhost:5341")
         .Enrich.FromLogContext()
         .Enrich.WithMachineName();
 });
