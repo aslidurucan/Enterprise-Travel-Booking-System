@@ -9,6 +9,8 @@ using System.Text;
 using Microsoft.Extensions.Configuration;
 using Microsoft.OpenApi.Models;
 using Serilog;
+using MassTransit;
+using Catalog.Application.Consumers;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Host.UseSerilog((context, configuration) =>
@@ -31,6 +33,24 @@ cfg.RegisterServicesFromAssembly(typeof(CreateVehicleCommand).Assembly);
 cfg.AddBehavior(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
 cfg.AddBehavior(typeof(IPipelineBehavior<,>), typeof(CachingBehavior<,>));
 
+});
+
+builder.Services.AddMassTransit(x =>
+{
+    x.AddConsumer<VehicleCreatedEventConsumer>();
+    x.UsingRabbitMq((context, cfg) =>
+    {
+        var host = builder.Configuration["MessageBroker:Host"];
+        var username = builder.Configuration["MessageBroker:Username"];
+        var password = builder.Configuration["MessageBroker:Password"];
+
+        cfg.Host(host, "/", h =>
+        {
+            h.Username(username);
+            h.Password(password);
+        });
+        cfg.ConfigureEndpoints(context);
+    });
 });
 
 builder.Services.AddValidatorsFromAssembly(typeof(Catalog.Application.Features.Vehicles.Commands.CreateVehicle.CreateVehicleCommand).Assembly);

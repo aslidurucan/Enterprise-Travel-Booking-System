@@ -1,5 +1,7 @@
-﻿using Catalog.Domain.Entities;
+﻿using Catalog.Application.Events;
+using Catalog.Domain.Entities;
 using Catalog.Domain.Repositories;
+using MassTransit;
 using MediatR;
 using System;
 using System.Collections.Generic;
@@ -7,15 +9,18 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+
 namespace Catalog.Application.Features.Vehicles.Commands.CreateVehicle
 {
     public class CreateVehicleCommandHandler : IRequestHandler<CreateVehicleCommand, Guid>
     {
         private readonly IVehicleRepository _vehicleRepository;
+        private readonly IPublishEndpoint _publishEndpoint;
 
-        public CreateVehicleCommandHandler(IVehicleRepository vehicleRepository)
+        public CreateVehicleCommandHandler(IVehicleRepository vehicleRepository, IPublishEndpoint publishEndpoint)
         {
             _vehicleRepository = vehicleRepository;
+            _publishEndpoint = publishEndpoint;
         }
 
         public async Task<Guid> Handle(CreateVehicleCommand request, CancellationToken cancellationToken)
@@ -34,6 +39,13 @@ namespace Catalog.Application.Features.Vehicles.Commands.CreateVehicle
             };
 
             await _vehicleRepository.AddAsync(vehicle);
+
+            await _publishEndpoint.Publish(new VehicleCreatedEvent
+            {
+                Id = vehicle.Id,
+                Brand = vehicle.Brand,
+                Model = vehicle.Model
+            }, cancellationToken);
 
             return vehicle.Id;
         }
