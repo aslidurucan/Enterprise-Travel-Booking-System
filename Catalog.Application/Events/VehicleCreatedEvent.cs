@@ -11,5 +11,8 @@ namespace Catalog.Application.Events
         public Guid Id { get; init; }
         public string Brand { get; init; }
         public string Model { get; init; }
+        public int Year { get; internal set; }
+        public decimal DailyPrice { get; internal set; }
+        public string Currency { get; set; }
     }
 }
