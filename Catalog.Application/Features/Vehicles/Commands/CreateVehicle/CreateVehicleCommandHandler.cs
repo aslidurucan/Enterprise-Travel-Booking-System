@@ -44,7 +44,10 @@ namespace Catalog.Application.Features.Vehicles.Commands.CreateVehicle
             {
                 Id = vehicle.Id,
                 Brand = vehicle.Brand,
-                Model = vehicle.Model
+                Model = vehicle.Model,
+                Year = vehicle.Year, 
+                DailyPrice = vehicle.DailyPrice,
+                Currency = vehicle.Currency
             }, cancellationToken);
 
             return vehicle.Id;
