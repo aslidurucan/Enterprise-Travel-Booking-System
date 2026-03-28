@@ -1,4 +1,5 @@
 ﻿using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Rentals.API.Application.Features.Rentals.Commands.CreateRental;
 using Rentals.API.Application.Features.Rentals.Queries.GetAllRentals;
@@ -17,15 +18,11 @@ namespace Rentals.API.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreateRental([FromBody] CreateRentalCommand command)
+        [Authorize]
+        public async Task<IActionResult> Post([FromBody] CreateRentalCommand command)
         {
             var rentalId = await _mediator.Send(command);
-
-            return Ok(new
-            {
-                Message = "Kiralama işlemi başarıyla tamamlandı!",
-                RentalId = rentalId
-            });
+            return Ok(new { Message = "Başarılı!", RentalId = rentalId });
         }
 
         [HttpGet]
@@ -36,6 +33,7 @@ namespace Rentals.API.Controllers
 
             return Ok(rentals);
         }
+
 
     }
 }
