@@ -12,8 +12,8 @@ using Rentals.API.Infrastructure;
 namespace Rentals.API.Migrations
 {
     [DbContext(typeof(RentalsDbContext))]
-    [Migration("20260326020032_AddCurrencyToRentableVehicles")]
-    partial class AddCurrencyToRentableVehicles
+    [Migration("20260328123544_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -51,7 +51,10 @@ namespace Rentals.API.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<string>("CustomerName")
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CustomerId")
                         .IsRequired()
                         .HasColumnType("text");
 
@@ -61,9 +64,8 @@ namespace Rentals.API.Migrations
                     b.Property<DateTime>("StartDate")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasColumnType("text");
+                    b.Property<int>("Status")
+                        .HasColumnType("integer");
 
                     b.Property<decimal>("TotalPrice")
                         .HasColumnType("numeric");
