@@ -1,6 +1,8 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Rentals.API.Application.Features.Rentals.Commands.CreateRental;
+using Rentals.API.Application.Features.Rentals.Queries.GetAllRentals;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace Rentals.API.Controllers
 {
@@ -24,6 +26,15 @@ namespace Rentals.API.Controllers
                 Message = "Kiralama işlemi başarıyla tamamlandı!",
                 RentalId = rentalId
             });
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetAllRentals()
+        {
+            var query = new GetAllRentalsQuery();
+            var rentals = await _mediator.Send(query);
+
+            return Ok(rentals);
         }
 
     }
