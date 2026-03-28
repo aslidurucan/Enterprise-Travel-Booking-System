@@ -1,69 +1,65 @@
 ﻿using MediatR;
+using Rentals.API.Application.Features.Rentals.Commands.CreateRental;
+using Rentals.API.Application.Interfaces;
 using Rentals.API.Domain.Entities;
-using Rentals.API.Infrastructure;
-using System;
-using System.Threading;
-using System.Threading.Tasks;
 
-namespace Rentals.API.Application.Features.Rentals.Commands.CreateRental
+public class CreateRentalCommandHandler : IRequestHandler<CreateRentalCommand, Guid>
 {
-    // MİMARİ KURAL: Bu sınıf CreateRentalCommand isteğini alır ve geriye Guid (Fatura ID'si) döner.
-    public class CreateRentalCommandHandler : IRequestHandler<CreateRentalCommand, Guid>
+    private readonly IRentalRepository _rentalRepository;
+    private readonly IHttpContextAccessor _httpContextAccessor;
+    private readonly ILogger<CreateRentalCommandHandler> _logger;
+
+    public CreateRentalCommandHandler(
+        IRentalRepository rentalRepository,
+        IHttpContextAccessor httpContextAccessor,
+        ILogger<CreateRentalCommandHandler> logger)
     {
-        private readonly RentalsDbContext _context;
+        _rentalRepository = rentalRepository;
+        _httpContextAccessor = httpContextAccessor;
+        _logger = logger;
+    }
 
-        // Dependency Injection ile veritabanı köprümüzü içeri alıyoruz.
-        public CreateRentalCommandHandler(RentalsDbContext context)
+    public async Task<Guid> Handle(CreateRentalCommand request, CancellationToken cancellationToken)
+    {
+        var user = _httpContextAccessor.HttpContext?.User;
+        if (user != null)
         {
-            _context = context;
+            foreach (var claim in user.Claims)
+            {
+                _logger.LogInformation($"[DEBUG] Claim Type: {claim.Type}, Value: {claim.Value}");
+            }
+        }
+        var userIdString = user?.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value
+                           ?? user?.FindFirst("sub")?.Value
+                           ?? user?.FindFirst("id")?.Value;
+
+        if (string.IsNullOrEmpty(userIdString) || !Guid.TryParse(userIdString, out var userId))
+        {
+            _logger.LogWarning("Kullanıcı ID'si Token içinde bulunamadı veya geçersiz!");
+            throw new UnauthorizedAccessException("Giriş yapmalısınız!");
         }
 
-        public async Task<Guid> Handle(CreateRentalCommand request, CancellationToken cancellationToken)
+        var vehicle = await _rentalRepository.GetVehicleByIdAsync(request.VehicleId);
+        if (vehicle == null || !vehicle.IsAvailable)
+            throw new Exception("Araç müsait değil!");
+
+        if (request.StartDate >= request.EndDate)
+            throw new Exception("Tarihler hatalı!");
+
+        var totalDays = Math.Max((request.EndDate - request.StartDate).Days, 1);
+
+        var rental = new Rental
         {
-            var vehicle = await _context.RentableVehicles.FindAsync(new object[] { request.VehicleId }, cancellationToken);
+            Id = Guid.NewGuid(),
+            VehicleId = request.VehicleId,
+            CustomerId = userIdString,
+            StartDate = request.StartDate,
+            EndDate = request.EndDate,
+            TotalPrice = totalDays * vehicle.DailyPrice,
+            Status = RentalStatus.Active,
+            CreatedAt = DateTime.UtcNow
+        };
 
-            if (vehicle == null)
-            {
-                
-                throw new Exception("Kiralanamadı: Araç sistemde bulunamadı!");
-            }
-
-            if (!vehicle.IsAvailable)
-            {
-                throw new Exception("Kiralanamadı: Bu araç şu an başka bir müşteride veya bakıma alınmış!");
-            }
-
-            if (request.StartDate >= request.EndDate)
-            {
-                throw new Exception("Kiralanamadı: Bitiş tarihi, başlangıç tarihinden ileri bir zaman olmalıdır!");
-            }
-
-            var totalDays = (request.EndDate - request.StartDate).Days;
-
-           
-            if (totalDays == 0) totalDays = 1;
-
-            var totalPrice = totalDays * vehicle.DailyPrice;
-
-           
-            var rental = new Rental
-            {
-                Id = Guid.NewGuid(),
-                VehicleId = request.VehicleId,
-                CustomerId = request.CustomerId, 
-                StartDate = request.StartDate,
-                EndDate = request.EndDate,
-                TotalPrice = totalPrice,
-                Status = RentalStatus.Active, 
-                CreatedAt = DateTime.UtcNow
-            };
-
-            vehicle.IsAvailable = false;
-
-            await _context.Rentals.AddAsync(rental, cancellationToken);
-            await _context.SaveChangesAsync(cancellationToken);
-
-            return rental.Id;
-        }
+        return await _rentalRepository.CreateRentalTransactionAsync(rental, vehicle);
     }
 }

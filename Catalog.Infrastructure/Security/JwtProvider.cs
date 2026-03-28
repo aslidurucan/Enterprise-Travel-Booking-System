@@ -18,7 +18,7 @@ namespace Catalog.Infrastructure.Security
             _configuration = configuration;
         }
 
-        public string GenerateToken(string username, string role)
+        public string GenerateToken(string userId, string username, string role)
         {
             var secretKey = _configuration["JwtSettings:SecretKey"];
             var issuer = _configuration["JwtSettings:Issuer"];
@@ -28,8 +28,8 @@ namespace Catalog.Infrastructure.Security
             var claims = new List<Claim>
             {
                 new Claim(ClaimTypes.Name, username), 
-                new Claim(ClaimTypes.Role, role),    
-                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
+                new Claim(ClaimTypes.Role, role),
+                new Claim(ClaimTypes.NameIdentifier, userId)
             };
 
             var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey));
