@@ -1,0 +1,42 @@
+version: '3.8'
+
+services:
+ # 1. DATABASE (PostgreSQL)
+  postgres:
+    image: postgres:15-alpine
+    container_name: wandersync-postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_DB_PASSWORD}
+      POSTGRES_DB: CatalogDb
+    ports:
+      - "5432:5432"
+    restart: always
+
+    # 2. CACHE (Redis)
+  redis:
+    image: redis:alpine
+    container_name: wandersync-redis
+    ports:
+      - "6379:6379"
+    restart: always
+
+ # 3. LOGGING DASHBOARD (Seq)
+  seq:
+    image: datalust/seq:latest
+    container_name: wandersync-seq
+    environment:
+      - ACCEPT_EULA=Y
+      - SEQ_FIRSTRUN_ADMINPASSWORD=${SEQ_ADMIN_PASSWORD} 
+    ports:
+      - "5341:80"
+    restart: always
+
+  # 4. MESSAGE BROKER (RabbitMQ)
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: wandersync-rabbitmq
+    ports:
+      - "5672:5672" 
+      - "15672:15672" 
+    restart: always
