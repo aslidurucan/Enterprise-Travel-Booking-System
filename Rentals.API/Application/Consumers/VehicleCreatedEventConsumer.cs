@@ -1,8 +1,8 @@
 ﻿using MassTransit;
 using Rentals.API.Domain.Entities;
 using Rentals.API.Infrastructure;
-using Catalog.Application.Events;
 using Microsoft.EntityFrameworkCore;
+using EnterpriseTravelBooking.Shared.Events; 
 
 namespace Rentals.API.Application.Consumers
 {

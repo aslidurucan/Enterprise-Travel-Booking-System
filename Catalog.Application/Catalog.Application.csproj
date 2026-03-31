@@ -31,6 +31,12 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Catalog.Domain\Catalog.Domain.csproj" />
+    <ProjectReference Include="..\EnterpriseTravelBooking.Shared\EnterpriseTravelBooking.Shared.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Consumers\" />
+    <Folder Include="Events\" />
   </ItemGroup>
 
 </Project>
