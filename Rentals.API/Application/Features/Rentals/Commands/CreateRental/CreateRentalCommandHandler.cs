@@ -1,4 +1,6 @@
-﻿using MediatR;
+﻿using EnterpriseTravelBooking.Shared.Events;
+using MassTransit;
+using MediatR;
 using Rentals.API.Application.Features.Rentals.Commands.CreateRental;
 using Rentals.API.Application.Interfaces;
 using Rentals.API.Domain.Entities;
@@ -8,15 +10,18 @@ public class CreateRentalCommandHandler : IRequestHandler<CreateRentalCommand, G
     private readonly IRentalRepository _rentalRepository;
     private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly ILogger<CreateRentalCommandHandler> _logger;
+    private readonly IPublishEndpoint _publishEndpoint;
 
     public CreateRentalCommandHandler(
         IRentalRepository rentalRepository,
         IHttpContextAccessor httpContextAccessor,
-        ILogger<CreateRentalCommandHandler> logger)
+        ILogger<CreateRentalCommandHandler> logger,
+        IPublishEndpoint publishEndpoint)
     {
         _rentalRepository = rentalRepository;
         _httpContextAccessor = httpContextAccessor;
         _logger = logger;
+        _publishEndpoint = publishEndpoint;
     }
 
     public async Task<Guid> Handle(CreateRentalCommand request, CancellationToken cancellationToken)
@@ -59,7 +64,17 @@ public class CreateRentalCommandHandler : IRequestHandler<CreateRentalCommand, G
             Status = RentalStatus.Active,
             CreatedAt = DateTime.UtcNow
         };
+        var result = await _rentalRepository.CreateRentalTransactionAsync(rental, vehicle);
+        await _publishEndpoint.Publish(new RentalCreatedEvent
+        {
+            RentalId = rental.Id,
+            CustomerEmail = "aslidurucan22@gmail.com", // Şimdilik elle yazdık, ilerde user'dan gelecek
+            VehicleInfo = $"{vehicle.Id} nolu araç",
+            TotalPrice = rental.TotalPrice,
+            CreatedAt = DateTime.UtcNow
+        }, cancellationToken);
+        _logger.LogInformation($"[EVENT] Kiralama anonsu RabbitMQ'ya gönderildi: {rental.Id}");
 
-        return await _rentalRepository.CreateRentalTransactionAsync(rental, vehicle);
+        return result;
     }
 }

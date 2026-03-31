@@ -10,7 +10,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.OpenApi.Models;
 using Serilog;
 using MassTransit;
-using Catalog.Application.Consumers;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Host.UseSerilog((context, configuration) =>
@@ -37,7 +36,7 @@ cfg.AddBehavior(typeof(IPipelineBehavior<,>), typeof(CachingBehavior<,>));
 
 builder.Services.AddMassTransit(x =>
 {
-    x.AddConsumer<VehicleCreatedEventConsumer>();
+    //x.AddConsumer<VehicleCreatedEventConsumer>();
     x.UsingRabbitMq((context, cfg) =>
     {
         var host = builder.Configuration["MessageBroker:Host"];

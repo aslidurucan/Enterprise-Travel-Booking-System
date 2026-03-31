@@ -1,13 +1,8 @@
-﻿using Catalog.Application.Events;
-using Catalog.Domain.Entities;
+﻿using Catalog.Domain.Entities;
 using Catalog.Domain.Repositories;
 using MassTransit;
 using MediatR;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using EnterpriseTravelBooking.Shared.Events;
 
 
 namespace Catalog.Application.Features.Vehicles.Commands.CreateVehicle
