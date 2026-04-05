@@ -1,11 +1,7 @@
 ﻿using Catalog.Application.DTOs;
+using Catalog.Application.Exceptions;
 using Catalog.Domain.Repositories;
 using MediatR;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Catalog.Application.Features.Vehicles.Queries.GetVehicleById
 {
@@ -26,7 +22,7 @@ namespace Catalog.Application.Features.Vehicles.Queries.GetVehicleById
             if (vehicle == null)
             {
 
-                throw new Exception("Aradığınız araç sistemde bulunamadı.");
+                throw new NotFoundException("Aradığınız araç sistemde bulunamadı.");
             }
 
             var vehicleDto = new VehicleDto

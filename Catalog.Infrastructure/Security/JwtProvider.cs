@@ -1,24 +1,23 @@
-﻿using Catalog.Application.Security;
+using Catalog.Application.Security;
+using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
+using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
-using Microsoft.Extensions.Configuration;
-using System.Collections.Generic;
 using System.Text;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace Catalog.Infrastructure.Security
 {
     public class JwtProvider : IJwtProvider
     {
         private readonly IConfiguration _configuration;
+
         public JwtProvider(IConfiguration configuration)
         {
             _configuration = configuration;
         }
 
-        public string GenerateToken(string userId, string username, string role)
+        public string GenerateToken(string userId, string username, string role, string email)
         {
             var secretKey = _configuration["JwtSettings:SecretKey"];
             var issuer = _configuration["JwtSettings:Issuer"];
@@ -27,9 +26,10 @@ namespace Catalog.Infrastructure.Security
 
             var claims = new List<Claim>
             {
-                new Claim(ClaimTypes.Name, username), 
+                new Claim(ClaimTypes.Name, username),
                 new Claim(ClaimTypes.Role, role),
-                new Claim(ClaimTypes.NameIdentifier, userId)
+                new Claim(ClaimTypes.NameIdentifier, userId),
+                new Claim(ClaimTypes.Email, email)
             };
 
             var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey));
@@ -39,11 +39,10 @@ namespace Catalog.Infrastructure.Security
                 issuer: issuer,
                 audience: audience,
                 claims: claims,
-                expires: DateTime.Now.AddMinutes(expiryMinutes), 
+                expires: DateTime.UtcNow.AddMinutes(expiryMinutes),
                 signingCredentials: credentials);
 
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
     }
 }
-
