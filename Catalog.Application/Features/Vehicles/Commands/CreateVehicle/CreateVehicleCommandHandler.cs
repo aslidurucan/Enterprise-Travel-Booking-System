@@ -3,6 +3,7 @@ using Catalog.Domain.Repositories;
 using MassTransit;
 using MediatR;
 using EnterpriseTravelBooking.Shared.Events;
+using Microsoft.Extensions.Caching.Distributed;
 
 
 namespace Catalog.Application.Features.Vehicles.Commands.CreateVehicle
@@ -11,11 +12,13 @@ namespace Catalog.Application.Features.Vehicles.Commands.CreateVehicle
     {
         private readonly IVehicleRepository _vehicleRepository;
         private readonly IPublishEndpoint _publishEndpoint;
+        private readonly IDistributedCache _cache;
 
-        public CreateVehicleCommandHandler(IVehicleRepository vehicleRepository, IPublishEndpoint publishEndpoint)
+        public CreateVehicleCommandHandler(IVehicleRepository vehicleRepository, IPublishEndpoint publishEndpoint, IDistributedCache cache)
         {
             _vehicleRepository = vehicleRepository;
             _publishEndpoint = publishEndpoint;
+            _cache = cache;
         }
 
         public async Task<Guid> Handle(CreateVehicleCommand request, CancellationToken cancellationToken)
@@ -34,6 +37,7 @@ namespace Catalog.Application.Features.Vehicles.Commands.CreateVehicle
             };
 
             await _vehicleRepository.AddAsync(vehicle);
+            await _cache.RemoveAsync("VehiclesList", cancellationToken);
 
             await _publishEndpoint.Publish(new VehicleCreatedEvent
             {

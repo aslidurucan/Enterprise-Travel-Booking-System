@@ -1,10 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.Design;
 
 namespace Catalog.Infrastructure.Persistence
 {
@@ -13,8 +8,6 @@ namespace Catalog.Infrastructure.Persistence
         public CatalogDbContext CreateDbContext(string[] args)
         {
             var optionsBuilder = new DbContextOptionsBuilder<CatalogDbContext>();
-
-            // Sadece Migration (göç) araçlarının kullanması için Docker veritabanımızın adresini buraya açıkça yazıyoruz:
             optionsBuilder.UseNpgsql("Host=localhost;Port=5432;Database=WanderSyncCatalogDb;Username=postgres;Password=CHANGE_ME");
 
             return new CatalogDbContext(optionsBuilder.Options);

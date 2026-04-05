@@ -1,4 +1,6 @@
-﻿using Catalog.Application.Security;
+using Catalog.Application.Features.Auth.Commands.Login;
+using Catalog.Application.Features.Auth.Commands.Register;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Catalog.API.Controllers
@@ -7,42 +9,40 @@ namespace Catalog.API.Controllers
     [ApiController]
     public class AuthController : ControllerBase
     {
-        private readonly IJwtProvider _jwtProvider;
+        private readonly IMediator _mediator;
 
-        public AuthController(IJwtProvider jwtProvider)
+        public AuthController(IMediator mediator)
         {
-            _jwtProvider = jwtProvider;
+            _mediator = mediator;
         }
 
-        public class LoginRequest
+        [HttpPost("register")]
+        public async Task<IActionResult> Register([FromBody] RegisterCommand command)
         {
-            public string Username { get; set; }
-            public string Password { get; set; }
+            var result = await _mediator.Send(command);
+
+            return StatusCode(StatusCodes.Status201Created, new
+            {
+                result.UserId,
+                result.Username,
+                result.Email,
+                result.Role,
+                Message = "Kayıt başarılı! Artık giriş yapabilirsiniz."
+            });
         }
 
         [HttpPost("login")]
-        public IActionResult Login([FromBody] LoginRequest request)
+        public async Task<IActionResult> Login([FromBody] LoginCommand command)
         {
-            // MİMARİ NOT: Normalde burada veritabanına (Users tablosuna) gidip 
-            // şifrenin Hash'ini (Kriptolu halini) kontrol etmeliyiz. 
-            // Şimdilik mimariyi test etmek için "Hardcoded" (Sabit) bir yönetici hesabı koyuyoruz.
-            var adminId = "9d35ee33-7b0a-4f37-8e6a-2dc5ea42c6ac";
-            if (request.Username == "admin" && request.Password == "123456")
+            var result = await _mediator.Send(command);
+
+            return Ok(new
             {
-                var token = _jwtProvider.GenerateToken(adminId, request.Username, "Admin");
-
-                return Ok(new { Token = token, Message = "Giriş başarılı! Bu Token'ı Swagger'a kopyalayın." });
-            }
-
-            // 2. Senaryo: Normal Müşteri Girişi (TEST İÇİN EKLİYORUZ)
-            var customerId = "2f10aa44-8c1b-5g48-9f7b-3ed6fb53d7bd";
-            if (request.Username == "asli" && request.Password == "123456")
-            {
-                var token = _jwtProvider.GenerateToken(customerId, request.Username, "User");
-                return Ok(new { Token = token, Message = "Müşteri girişi başarılı!" });
-            }
-
-            return Unauthorized("Kullanıcı adı veya şifre hatalı!");
+                result.Token,
+                result.Username,
+                result.Role,
+                Message = "Giriş başarılı!"
+            });
         }
     }
 }

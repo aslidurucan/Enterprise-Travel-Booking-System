@@ -1,17 +1,17 @@
 using Catalog.Application.Behaviors;
 using Catalog.Application.Features.Vehicles.Commands.CreateVehicle;
 using FluentValidation;
+using MassTransit;
 using MediatR;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using System.Text;
-using Microsoft.Extensions.Configuration;
 using Microsoft.OpenApi.Models;
 using Serilog;
-using MassTransit;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
+
 builder.Host.UseSerilog((context, configuration) =>
 {
     configuration
@@ -23,20 +23,18 @@ builder.Host.UseSerilog((context, configuration) =>
         .Enrich.WithMachineName();
 });
 
-// Add services to the container.
 builder.Services.AddDbContext<Catalog.Infrastructure.Persistence.CatalogDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+
 builder.Services.AddMediatR(cfg =>
 {
-cfg.RegisterServicesFromAssembly(typeof(CreateVehicleCommand).Assembly);
-cfg.AddBehavior(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
-cfg.AddBehavior(typeof(IPipelineBehavior<,>), typeof(CachingBehavior<,>));
-
+    cfg.RegisterServicesFromAssembly(typeof(CreateVehicleCommand).Assembly);
+    cfg.AddBehavior(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
+    cfg.AddBehavior(typeof(IPipelineBehavior<,>), typeof(CachingBehavior<,>));
 });
 
 builder.Services.AddMassTransit(x =>
 {
-    //x.AddConsumer<VehicleCreatedEventConsumer>();
     x.UsingRabbitMq((context, cfg) =>
     {
         var host = builder.Configuration["MessageBroker:Host"];
@@ -52,8 +50,10 @@ builder.Services.AddMassTransit(x =>
     });
 });
 
-builder.Services.AddValidatorsFromAssembly(typeof(Catalog.Application.Features.Vehicles.Commands.CreateVehicle.CreateVehicleCommand).Assembly);
+builder.Services.AddValidatorsFromAssembly(typeof(CreateVehicleCommand).Assembly);
 builder.Services.AddScoped<Catalog.Domain.Repositories.IVehicleRepository, Catalog.Infrastructure.Repositories.VehicleRepository>();
+builder.Services.AddScoped<Catalog.Domain.Repositories.IUserRepository, Catalog.Infrastructure.Repositories.UserRepository>();
+builder.Services.AddScoped<Catalog.Application.Security.IPasswordHasher, Catalog.Infrastructure.Security.PasswordHasher>();
 builder.Services.AddStackExchangeRedisCache(options =>
 {
     options.Configuration = "localhost:6379";
@@ -70,23 +70,22 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidateAudience = true,
             ValidateLifetime = true,
             ValidateIssuerSigningKey = true,
-
             ValidIssuer = builder.Configuration["JwtSettings:Issuer"],
             ValidAudience = builder.Configuration["JwtSettings:Audience"],
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JwtSettings:SecretKey"]))
         };
     });
+
 builder.Services.AddExceptionHandler<Catalog.API.Exceptions.GlobalExceptionHandler>();
 builder.Services.AddProblemDetails();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
     c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
-        Description = "JWT Kimlik Do?rulama ba?l???. \r\n\r\n A?a??daki kutuya 'Bearer' yaz?p bo?luk b?rakt?ktan sonra Token'?n?z? yap??t?r?n.\r\n\r\n�rnek: 'Bearer eyJhbGci...'",
-        Name = "Authorization", 
-        In = ParameterLocation.Header, 
+        Description = "JWT Kimlik Doğrulama başlığı. 'Bearer' yazıp boşluk bıraktıktan sonra Token'ınızı yapıştırın.",
+        Name = "Authorization",
+        In = ParameterLocation.Header,
         Type = SecuritySchemeType.ApiKey,
         Scheme = "Bearer"
     });
@@ -112,7 +111,6 @@ builder.Services.AddSwaggerGen(c =>
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -124,7 +122,6 @@ app.UseSerilogRequestLogging();
 app.UseExceptionHandler();
 app.UseAuthentication();
 app.UseAuthorization();
-
 app.MapControllers();
 
 using (var scope = app.Services.CreateScope())
@@ -133,14 +130,13 @@ using (var scope = app.Services.CreateScope())
     try
     {
         var context = services.GetRequiredService<Catalog.Infrastructure.Persistence.CatalogDbContext>();
-
         context.Database.Migrate();
-
         await Catalog.Infrastructure.Persistence.CatalogDbContextSeed.SeedAsync(context);
     }
     catch (Exception ex)
     {
-        Console.WriteLine($"Veritaban?na tohumlama yap?l?rken bir hata olu?tu: {ex.Message}");
+        Console.WriteLine($"Veritabanına seed yapılırken hata oluştu: {ex.Message}");
     }
 }
+
 app.Run();
