@@ -9,7 +9,7 @@ namespace Catalog.Application.Features.Vehicles.Commands.CreateVehicle
 {
     public class CreateVehicleCommandValidator : AbstractValidator<CreateVehicleCommand>
     {
-        public CreateVehicleCommandValidator()
+        public CreateVehicleCommandValidator() // global exception handler?
         {
             RuleFor(x => x.Brand)
                 .NotEmpty().WithMessage("Araç markası boş bırakılamaz.")

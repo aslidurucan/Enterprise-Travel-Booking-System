@@ -1,9 +1,8 @@
-﻿using MediatR;
+using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Rentals.API.Application.Features.Rentals.Commands.CreateRental;
-using Rentals.API.Application.Features.Rentals.Queries.GetAllRentals;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
+using Rentals.Application.Features.Rentals.Commands.CreateRental;
+using Rentals.Application.Features.Rentals.Queries.GetAllRentals;
 
 namespace Rentals.API.Controllers
 {
@@ -12,6 +11,7 @@ namespace Rentals.API.Controllers
     public class RentalsController : ControllerBase
     {
         private readonly IMediator _mediator;
+
         public RentalsController(IMediator mediator)
         {
             _mediator = mediator;
@@ -28,12 +28,8 @@ namespace Rentals.API.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAllRentals()
         {
-            var query = new GetAllRentalsQuery();
-            var rentals = await _mediator.Send(query);
-
+            var rentals = await _mediator.Send(new GetAllRentalsQuery());
             return Ok(rentals);
         }
-
-
     }
 }

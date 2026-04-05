@@ -1,26 +1,28 @@
-﻿using MassTransit;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.OpenApi.Models;
-using Rentals.API.Application.Consumers;
-using Rentals.API.Application.Interfaces;
-using Rentals.API.Infrastructure;
-using Microsoft.OpenApi.Models;
-using System.Reflection;
+using FluentValidation;
+using MassTransit;
+using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
+using Rentals.Application.Behaviors;
+using Rentals.Application.Features.Rentals.Commands.CreateRental;
+using Rentals.Application.Interfaces;
+using Rentals.Infrastructure.Consumers;
+using Rentals.Infrastructure.Persistence;
+using Rentals.Infrastructure.Repositories;
 using System.Text;
-
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-
 builder.Services.AddControllers();
 builder.Services.AddHttpContextAccessor();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+
 builder.Services.AddMassTransit(x =>
 {
     x.AddConsumer<VehicleCreatedEventConsumer>();
+    x.AddConsumer<VehicleUpdatedEventConsumer>();
+    x.AddConsumer<VehicleDeletedEventConsumer>();
 
     x.UsingRabbitMq((context, cfg) =>
     {
@@ -37,9 +39,19 @@ builder.Services.AddMassTransit(x =>
         cfg.ConfigureEndpoints(context);
     });
 });
+
 builder.Services.AddScoped<IRentalRepository, RentalRepository>();
-builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(Program).Assembly));
+
+builder.Services.AddValidatorsFromAssembly(typeof(CreateRentalCommand).Assembly);
+
+builder.Services.AddMediatR(cfg =>
+{
+    cfg.RegisterServicesFromAssembly(typeof(CreateRentalCommand).Assembly);
+    cfg.AddBehavior(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
+});
+
 builder.Services.AddEndpointsApiExplorer();
+
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -53,7 +65,6 @@ builder.Services.AddAuthentication(options =>
         ValidateAudience = true,
         ValidateLifetime = true,
         ValidateIssuerSigningKey = true,
-
         ValidIssuer = builder.Configuration["JwtSettings:Issuer"],
         ValidAudience = builder.Configuration["JwtSettings:Audience"],
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JwtSettings:SecretKey"]))
@@ -61,13 +72,16 @@ builder.Services.AddAuthentication(options =>
 });
 
 builder.Services.AddAuthorization();
+builder.Services.AddExceptionHandler<Rentals.API.Exceptions.GlobalExceptionHandler>();
+builder.Services.AddProblemDetails();
+
 builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new OpenApiInfo { Title = "Rentals.API", Version = "v1" });
 
     c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
-        Description = "JWT Kimlik Doğrulama başlığı. \r\n\r\n Aşağıdaki kutuya 'Bearer' yazıp boşluk bıraktıktan sonra Token'ınızı yapıştırın.\r\n\r\nÖrnek: 'Bearer eyJhbGci...'",
+        Description = "JWT Kimlik Doğrulama başlığı. 'Bearer' yazıp boşluk bıraktıktan sonra Token'ınızı yapıştırın.",
         Name = "Authorization",
         In = ParameterLocation.Header,
         Type = SecuritySchemeType.ApiKey,
@@ -92,23 +106,28 @@ builder.Services.AddSwaggerGen(c =>
         }
     });
 });
+
 builder.Services.AddDbContext<RentalsDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
 
+using (var scope = app.Services.CreateScope())
+{
+    var context = scope.ServiceProvider.GetRequiredService<RentalsDbContext>();
+    context.Database.Migrate();
+}
+
 app.UseHttpsRedirection();
+app.UseExceptionHandler();
 app.UseAuthentication();
-
 app.UseAuthorization();
-
 app.MapControllers();
 
 app.Run();

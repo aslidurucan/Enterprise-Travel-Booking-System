@@ -49,11 +49,6 @@ namespace Catalog.Infrastructure.Repositories
             await _context.SaveChangesAsync();
         }
 
-        public Task<T> UpdateByIdAsync(T entity)
-        {
-            throw new NotImplementedException();
-        }
-
         public async Task<PaginatedResult<T>> GetPagedAsync(int pageIndex, int pageSize)
         {
             var totalCount = await _context.Set<T>().CountAsync();
