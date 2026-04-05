@@ -1,0 +1,42 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git -C \"C:/Users/aslid/source/repos/EnterpriseTravelBooking\" show --stat HEAD)",
+      "Bash(git -C \"C:/Users/aslid/source/repos/EnterpriseTravelBooking\" log --oneline origin/main)",
+      "Bash(git -C \"C:/Users/aslid/source/repos/EnterpriseTravelBooking\" rev-parse HEAD)",
+      "Bash(git -C \"C:/Users/aslid/source/repos/EnterpriseTravelBooking\" rev-parse origin/main)",
+      "Bash(git -C \"C:/Users/aslid/source/repos/EnterpriseTravelBooking\" branch -a)",
+      "Bash(git -C \"C:/Users/aslid/source/repos/EnterpriseTravelBooking\" log --oneline --all --graph)",
+      "Bash(xargs cat:*)",
+      "Bash(xargs grep:*)",
+      "Bash(dotnet build:*)",
+      "Bash(pkill -f \"dotnet.*Catalog\")",
+      "Bash(dotnet run:*)",
+      "Bash(echo \"PID: $!\")",
+      "Bash(curl -s -X POST http://localhost:5078/api/auth/login -H 'Content-Type: application/json' -d '{\"username\":\"admin\",\"password\":\"123456\"}')",
+      "Bash(curl -s http://localhost:5078/api/vehicles -H 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1lIjoiYWRtaW4iLCJodHRwOi8vc2NoZW1hcy5taWNyb3NvZnQuY29tL3dzLzIwMDgvMDYvaWRlbnRpdHkvY2xhaW1zL3JvbGUiOiJBZG1pbiIsImh0dHA6Ly9zY2hlbWFzLnhtbHNvYXAub3JnL3dzLzIwMDUvMDUvaWRlbnRpdHkvY2xhaW1zL25hbWVpZGVudGlmaWVyIjoiOWQzNWVlMzMtN2IwYS00ZjM3LThlNmEtMmRjNWVhNDJjNmFjIiwiZXhwIjoxNzc1MzEyMTg1LCJpc3MiOiJXYW5kZXJTeW5jX0FQSSIsImF1ZCI6IldhbmRlclN5bmNfQ2xpZW50cyJ9.K3Zo7d63yLjLFIVFN1JEGugd8MWDZOh0bu9rGxIwydI')",
+      "Bash(curl -s http://localhost:5078/api/vehicles/99999999-0000-0000-0000-000000000000 -H 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1lIjoiYWRtaW4iLCJodHRwOi8vc2NoZW1hcy5taWNyb3NvZnQuY29tL3dzLzIwMDgvMDYvaWRlbnRpdHkvY2xhaW1zL3JvbGUiOiJBZG1pbiIsImh0dHA6Ly9zY2hlbWFzLnhtbHNvYXAub3JnL3dzLzIwMDUvMDUvaWRlbnRpdHkvY2xhaW1zL25hbWVpZGVudGlmaWVyIjoiOWQzNWVlMzMtN2IwYS00ZjM3LThlNmEtMmRjNWVhNDJjNmFjIiwiZXhwIjoxNzc1MzEyMTg1LCJpc3MiOiJXYW5kZXJTeW5jX0FQSSIsImF1ZCI6IldhbmRlclN5bmNfQ2xpZW50cyJ9.K3Zo7d63yLjLFIVFN1JEGugd8MWDZOh0bu9rGxIwydI')",
+      "Bash(curl -s -X POST http://localhost:5078/api/vehicles -H 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1lIjoiYWRtaW4iLCJodHRwOi8vc2NoZW1hcy5taWNyb3NvZnQuY29tL3dzLzIwMDgvMDYvaWRlbnRpdHkvY2xhaW1zL3JvbGUiOiJBZG1pbiIsImh0dHA6Ly9zY2hlbWFzLnhtbHNvYXAub3JnL3dzLzIwMDUvMDUvaWRlbnRpdHkvY2xhaW1zL25hbWVpZGVudGlmaWVyIjoiOWQzNWVlMzMtN2IwYS00ZjM3LThlNmEtMmRjNWVhNDJjNmFjIiwiZXhwIjoxNzc1MzEyMTg1LCJpc3MiOiJXYW5kZXJTeW5jX0FQSSIsImF1ZCI6IldhbmRlclN5bmNfQ2xpZW50cyJ9.K3Zo7d63yLjLFIVFN1JEGugd8MWDZOh0bu9rGxIwydI' -H 'Content-Type: application/json' -d '{\"brand\":\"Toyota\",\"model\":\"Corolla\",\"year\":2024,\"dailyPrice\":1500,\"currency\":\"TRY\"}')",
+      "Bash(curl -s -X POST http://localhost:5078/api/vehicles -H 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1lIjoiYWRtaW4iLCJodHRwOi8vc2NoZW1hcy5taWNyb3NvZnQuY29tL3dzLzIwMDgvMDYvaWRlbnRpdHkvY2xhaW1zL3JvbGUiOiJBZG1pbiIsImh0dHA6Ly9zY2hlbWFzLnhtbHNvYXAub3JnL3dzLzIwMDUvMDUvaWRlbnRpdHkvY2xhaW1zL25hbWVpZGVudGlmaWVyIjoiOWQzNWVlMzMtN2IwYS00ZjM3LThlNmEtMmRjNWVhNDJjNmFjIiwiZXhwIjoxNzc1MzEyMTg1LCJpc3MiOiJXYW5kZXJTeW5jX0FQSSIsImF1ZCI6IldhbmRlclN5bmNfQ2xpZW50cyJ9.K3Zo7d63yLjLFIVFN1JEGugd8MWDZOh0bu9rGxIwydI' -H 'Content-Type: application/json' -d '{\"brand\":\"\",\"model\":\"\",\"year\":1800,\"dailyPrice\":-1,\"currency\":\"\"}')",
+      "Bash(dotnet user-secrets:*)",
+      "Bash(curl -s -X POST http://localhost:5078/api/auth/login -H 'Content-Type: application/json' -d '{\"username\":\"asli\",\"password\":\"123456\"}')",
+      "Bash(pkill -f \"dotnet.*Catalog.API\")",
+      "Bash(pkill -f \"dotnet.*Rentals.API\")",
+      "Bash(pkill -f \"dotnet.*Notification\")",
+      "Bash(taskkill /F /PID 20344 /PID 21456)",
+      "Bash(wmic process:*)",
+      "Bash(netstat -ano)",
+      "Bash(taskkill /F /PID 21456)",
+      "Bash(taskkill /F /PID 20344)",
+      "Bash(taskkill //F //PID 21456)",
+      "Bash(taskkill //F //PID 20344)",
+      "Bash(dotnet restore:*)",
+      "Bash(taskkill //F //PID 12652)",
+      "Bash(dotnet ef:*)",
+      "Bash(curl:*)",
+      "Bash(taskkill //F //PID 25224)",
+      "Bash(dotnet-script /tmp/genhash.cs)",
+      "Bash(mkdir -p /tmp/hashapp)"
+    ]
+  }
+}

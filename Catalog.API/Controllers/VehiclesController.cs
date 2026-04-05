@@ -1,7 +1,6 @@
 ﻿using Catalog.Application.Features.Vehicles.Commands.CreateVehicle;
 using Catalog.Application.Features.Vehicles.Commands.DeleteVehicle;
 using Catalog.Application.Features.Vehicles.Commands.UpdateVehicle;
-using Catalog.Application.Features.Vehicles.Queries.GetAllVehicles;
 using Catalog.Application.Features.Vehicles.Queries.GetPagedVehicles;
 using Catalog.Application.Features.Vehicles.Queries.GetVehicleById;
 using MediatR;
@@ -31,18 +30,11 @@ namespace Catalog.API.Controllers
             return Ok(new { Id = vehicleId, Message = "Araç başarıyla eklendi!" });
         }
 
-        [HttpGet]
-        public async Task<IActionResult> GetAllVehicles()
+[Authorize(Roles = "Admin")]
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateVehicle(Guid id, [FromBody] UpdateVehicleCommand command)
         {
-            var vehicles = await _mediator.Send(new GetAllVehiclesQuery());
-
-            return Ok(vehicles);
-        }
-
-        [Authorize(Roles = "Admin")]
-        [HttpPut]
-        public async Task<IActionResult> UpdateVehicle([FromBody] UpdateVehicleCommand command)
-        {
+            command.Id = id;
             var result = await _mediator.Send(command);
             return Ok(new { Message = "Araç başarıyla güncellendi!" });
         }
