@@ -26,6 +26,9 @@ builder.Host.UseSerilog((context, configuration) =>
 builder.Services.AddDbContext<Catalog.Infrastructure.Persistence.CatalogDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+builder.Services.AddHealthChecks()
+    .AddDbContextCheck<Catalog.Infrastructure.Persistence.CatalogDbContext>(name: "database");
+
 builder.Services.AddMediatR(cfg =>
 {
     cfg.RegisterServicesFromAssembly(typeof(CreateVehicleCommand).Assembly);
@@ -123,6 +126,7 @@ app.UseExceptionHandler();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
+app.MapHealthChecks("/health");
 
 using (var scope = app.Services.CreateScope())
 {
