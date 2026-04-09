@@ -67,12 +67,12 @@ EnterpriseTravelBooking/
 
 ## Geliştirme Aşamasındaki Özellikler
 
-- [ ] Catalog.API — VehicleUpdated / VehicleDeleted event consumer (Rentals tarafında)
-- [ ] Rentals.API — GetAllRentals endpoint yetkilendirmesi
-- [ ] Güvenlik iyileştirmeleri (JWT secret key, RabbitMQ credentials)
+- [x] Catalog.API — VehicleUpdated / VehicleDeleted event consumer (Rentals tarafında)
+- [x] Rentals.API — GetAllRentals endpoint yetkilendirmesi
+- [x] Güvenlik iyileştirmeleri (User Secrets geliştirme, environment variables production)
 - [ ] Kullanıcı servisi (ayrı mikroservis)
-- [ ] API Gateway
-- [ ] Health check endpoint'leri
+- [x] API Gateway (YARP, port 5100)
+- [x] Health check endpoint'leri (`/health`)
 - [ ] CI/CD pipeline
 
 ---
