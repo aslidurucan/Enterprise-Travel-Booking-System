@@ -1,4 +1,4 @@
-namespace Catalog.Application.Security
+namespace Identity.Application.Security
 {
     public interface IJwtProvider
     {

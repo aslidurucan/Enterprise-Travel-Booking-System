@@ -1,9 +1,9 @@
-using Catalog.Application.Security;
-using Catalog.Domain.Entities;
-using Catalog.Domain.Repositories;
+using Identity.Application.Security;
+using Identity.Domain.Entities;
+using Identity.Domain.Repositories;
 using MediatR;
 
-namespace Catalog.Application.Features.Auth.Commands.Register
+namespace Identity.Application.Features.Auth.Commands.Register
 {
     public class RegisterCommandHandler : IRequestHandler<RegisterCommand, RegisterResult>
     {

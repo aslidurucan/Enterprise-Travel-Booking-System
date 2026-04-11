@@ -1,6 +1,6 @@
-using Catalog.Domain.Entities;
+using Identity.Domain.Entities;
 
-namespace Catalog.Domain.Repositories
+namespace Identity.Domain.Repositories
 {
     public interface IUserRepository
     {

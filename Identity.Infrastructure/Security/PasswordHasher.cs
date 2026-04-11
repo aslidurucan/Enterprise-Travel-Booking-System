@@ -1,6 +1,6 @@
-using Catalog.Application.Security;
+using Identity.Application.Security;
 
-namespace Catalog.Infrastructure.Security
+namespace Identity.Infrastructure.Security
 {
     public class PasswordHasher : IPasswordHasher
     {

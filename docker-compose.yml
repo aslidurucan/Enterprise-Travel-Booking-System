@@ -41,7 +41,25 @@ services:
       - "15672:15672"
     restart: always
 
-  # 5. CATALOG API
+  # 5. IDENTITY API
+  identity-api:
+    build:
+      context: .
+      dockerfile: Identity.API/Dockerfile
+    container_name: wandersync-identity-api
+    ports:
+      - "5200:8080"
+    environment:
+      - ConnectionStrings__DefaultConnection=Host=postgres;Port=5432;Database=IdentityDb;Username=postgres;Password=${POSTGRES_DB_PASSWORD}
+      - JwtSettings__SecretKey=${JWT_SECRET_KEY}
+      - JwtSettings__Issuer=WanderSync_API
+      - JwtSettings__Audience=WanderSync_Clients
+      - JwtSettings__ExpiryMinutes=60
+    depends_on:
+      - postgres
+    restart: on-failure
+
+  # 6. CATALOG API
   catalog-api:
     build:
       context: .
@@ -93,9 +111,11 @@ services:
     ports:
       - "5100:8080"
     environment:
+      - ReverseProxy__Clusters__identity-cluster__Destinations__identity-api__Address=http://identity-api:8080
       - ReverseProxy__Clusters__catalog-cluster__Destinations__catalog-api__Address=http://catalog-api:8080
       - ReverseProxy__Clusters__rentals-cluster__Destinations__rentals-api__Address=http://rentals-api:8080
     depends_on:
+      - identity-api
       - catalog-api
       - rentals-api
     restart: on-failure

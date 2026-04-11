@@ -1,8 +1,8 @@
-using Catalog.Application.Security;
-using Catalog.Domain.Repositories;
+using Identity.Application.Security;
+using Identity.Domain.Repositories;
 using MediatR;
 
-namespace Catalog.Application.Features.Auth.Commands.Login
+namespace Identity.Application.Features.Auth.Commands.Login
 {
     public class LoginCommandHandler : IRequestHandler<LoginCommand, LoginResult>
     {

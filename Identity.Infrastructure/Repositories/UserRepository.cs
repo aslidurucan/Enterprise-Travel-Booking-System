@@ -1,15 +1,15 @@
-using Catalog.Domain.Entities;
-using Catalog.Domain.Repositories;
-using Catalog.Infrastructure.Persistence;
+using Identity.Domain.Entities;
+using Identity.Domain.Repositories;
+using Identity.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 
-namespace Catalog.Infrastructure.Repositories
+namespace Identity.Infrastructure.Repositories
 {
     public class UserRepository : IUserRepository
     {
-        private readonly CatalogDbContext _context;
+        private readonly IdentityDbContext _context;
 
-        public UserRepository(CatalogDbContext context)
+        public UserRepository(IdentityDbContext context)
         {
             _context = context;
         }
@@ -17,19 +17,22 @@ namespace Catalog.Infrastructure.Repositories
         public async Task<User?> GetByUsernameAsync(string username)
         {
             return await _context.Users
-                .FirstOrDefaultAsync(u => EF.Functions.ILike(u.Username, username));
+                .AsNoTracking()
+                .FirstOrDefaultAsync(u => u.Username == username);
         }
 
         public async Task<bool> ExistsByEmailAsync(string email)
         {
             return await _context.Users
-                .AnyAsync(u => EF.Functions.ILike(u.Email, email));
+                .AsNoTracking()
+                .AnyAsync(u => u.Email == email);
         }
 
         public async Task<bool> ExistsByUsernameAsync(string username)
         {
             return await _context.Users
-                .AnyAsync(u => EF.Functions.ILike(u.Username, username));
+                .AsNoTracking()
+                .AnyAsync(u => u.Username == username);
         }
 
         public async Task<User> AddAsync(User user)

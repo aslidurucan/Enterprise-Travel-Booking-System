@@ -1,9 +1,9 @@
-using Catalog.Application.Features.Auth.Commands.Login;
-using Catalog.Application.Features.Auth.Commands.Register;
+using Identity.Application.Features.Auth.Commands.Login;
+using Identity.Application.Features.Auth.Commands.Register;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Catalog.API.Controllers
+namespace Identity.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
