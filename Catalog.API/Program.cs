@@ -26,6 +26,9 @@ builder.Host.UseSerilog((context, configuration) =>
 builder.Services.AddDbContext<Catalog.Infrastructure.Persistence.CatalogDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+builder.Services.AddHealthChecks()
+    .AddDbContextCheck<Catalog.Infrastructure.Persistence.CatalogDbContext>(name: "database");
+
 builder.Services.AddMediatR(cfg =>
 {
     cfg.RegisterServicesFromAssembly(typeof(CreateVehicleCommand).Assembly);
@@ -52,15 +55,12 @@ builder.Services.AddMassTransit(x =>
 
 builder.Services.AddValidatorsFromAssembly(typeof(CreateVehicleCommand).Assembly);
 builder.Services.AddScoped<Catalog.Domain.Repositories.IVehicleRepository, Catalog.Infrastructure.Repositories.VehicleRepository>();
-builder.Services.AddScoped<Catalog.Domain.Repositories.IUserRepository, Catalog.Infrastructure.Repositories.UserRepository>();
-builder.Services.AddScoped<Catalog.Application.Security.IPasswordHasher, Catalog.Infrastructure.Security.PasswordHasher>();
 builder.Services.AddStackExchangeRedisCache(options =>
 {
     options.Configuration = "localhost:6379";
     options.InstanceName = "WanderSync_Catalog_";
 });
 builder.Services.AddControllers();
-builder.Services.AddScoped<Catalog.Application.Security.IJwtProvider, Catalog.Infrastructure.Security.JwtProvider>();
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
@@ -123,6 +123,7 @@ app.UseExceptionHandler();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
+app.MapHealthChecks("/health");
 
 using (var scope = app.Services.CreateScope())
 {

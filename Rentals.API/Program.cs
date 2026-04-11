@@ -110,6 +110,9 @@ builder.Services.AddSwaggerGen(c =>
 builder.Services.AddDbContext<RentalsDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+builder.Services.AddHealthChecks()
+    .AddDbContextCheck<RentalsDbContext>(name: "database");
+
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
@@ -129,5 +132,6 @@ app.UseExceptionHandler();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
+app.MapHealthChecks("/health");
 
 app.Run();

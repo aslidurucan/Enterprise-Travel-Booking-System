@@ -37,6 +37,99 @@ services:
     image: rabbitmq:3-management-alpine
     container_name: wandersync-rabbitmq
     ports:
-      - "5672:5672" 
-      - "15672:15672" 
+      - "5672:5672"
+      - "15672:15672"
     restart: always
+
+  # 5. IDENTITY API
+  identity-api:
+    build:
+      context: .
+      dockerfile: Identity.API/Dockerfile
+    container_name: wandersync-identity-api
+    ports:
+      - "5200:8080"
+    environment:
+      - ConnectionStrings__DefaultConnection=Host=postgres;Port=5432;Database=IdentityDb;Username=postgres;Password=${POSTGRES_DB_PASSWORD}
+      - JwtSettings__SecretKey=${JWT_SECRET_KEY}
+      - JwtSettings__Issuer=WanderSync_API
+      - JwtSettings__Audience=WanderSync_Clients
+      - JwtSettings__ExpiryMinutes=60
+    depends_on:
+      - postgres
+    restart: on-failure
+
+  # 6. CATALOG API
+  catalog-api:
+    build:
+      context: .
+      dockerfile: Catalog.API/Dockerfile
+    container_name: wandersync-catalog-api
+    ports:
+      - "5000:8080"
+    environment:
+      - ConnectionStrings__DefaultConnection=Host=postgres;Port=5432;Database=CatalogDb;Username=postgres;Password=${POSTGRES_DB_PASSWORD}
+      - JwtSettings__SecretKey=${JWT_SECRET_KEY}
+      - JwtSettings__Issuer=WanderSync_API
+      - JwtSettings__Audience=WanderSync_Clients
+      - MessageBroker__Host=rabbitmq
+      - MessageBroker__Username=${RABBITMQ_USERNAME}
+      - MessageBroker__Password=${RABBITMQ_PASSWORD}
+    depends_on:
+      - postgres
+      - rabbitmq
+      - redis
+    restart: on-failure
+
+  # 6. RENTALS API
+  rentals-api:
+    build:
+      context: .
+      dockerfile: Rentals.API/Dockerfile
+    container_name: wandersync-rentals-api
+    ports:
+      - "5001:8080"
+    environment:
+      - ConnectionStrings__DefaultConnection=Host=postgres;Port=5432;Database=RentalsDb;Username=postgres;Password=${POSTGRES_DB_PASSWORD}
+      - JwtSettings__SecretKey=${JWT_SECRET_KEY}
+      - JwtSettings__Issuer=WanderSync_API
+      - JwtSettings__Audience=WanderSync_Clients
+      - MessageBroker__Host=rabbitmq
+      - MessageBroker__Username=${RABBITMQ_USERNAME}
+      - MessageBroker__Password=${RABBITMQ_PASSWORD}
+    depends_on:
+      - postgres
+      - rabbitmq
+    restart: on-failure
+
+  # 7. API GATEWAY
+  api-gateway:
+    build:
+      context: .
+      dockerfile: ApiGateway/Dockerfile
+    container_name: wandersync-api-gateway
+    ports:
+      - "5100:8080"
+    environment:
+      - ReverseProxy__Clusters__identity-cluster__Destinations__identity-api__Address=http://identity-api:8080
+      - ReverseProxy__Clusters__catalog-cluster__Destinations__catalog-api__Address=http://catalog-api:8080
+      - ReverseProxy__Clusters__rentals-cluster__Destinations__rentals-api__Address=http://rentals-api:8080
+    depends_on:
+      - identity-api
+      - catalog-api
+      - rentals-api
+    restart: on-failure
+
+  # 8. NOTIFICATION SERVICE
+  notification-service:
+    build:
+      context: .
+      dockerfile: Notification.Service/Dockerfile
+    container_name: wandersync-notification-service
+    environment:
+      - RabbitMQ__Host=rabbitmq
+      - RabbitMQ__Username=${RABBITMQ_USERNAME}
+      - RabbitMQ__Password=${RABBITMQ_PASSWORD}
+    depends_on:
+      - rabbitmq
+    restart: on-failure

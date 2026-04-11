@@ -26,6 +26,7 @@ namespace Rentals.API.Controllers
         }
 
         [HttpGet]
+        [Authorize]
         public async Task<IActionResult> GetAllRentals()
         {
             var rentals = await _mediator.Send(new GetAllRentalsQuery());
