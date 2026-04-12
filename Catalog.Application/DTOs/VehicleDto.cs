@@ -14,5 +14,6 @@ namespace Catalog.Application.DTOs
         public int Year { get; set; }
         public decimal DailyPrice { get; set; }
         public string Currency { get; set; }
+        public bool IsAvailable { get; set; }
     }
 }

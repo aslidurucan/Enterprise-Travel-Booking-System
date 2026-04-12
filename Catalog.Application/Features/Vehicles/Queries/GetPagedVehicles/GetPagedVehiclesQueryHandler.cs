@@ -25,7 +25,8 @@ namespace Catalog.Application.Features.Vehicles.Queries.GetPagedVehicles
                 Model = vehicle.Model,
                 Year = vehicle.Year,
                 DailyPrice = vehicle.DailyPrice,
-                Currency = vehicle.Currency
+                Currency = vehicle.Currency,
+                IsAvailable = vehicle.IsAvailable
             }).ToList();
 
             return new PaginatedResult<VehicleDto>(
