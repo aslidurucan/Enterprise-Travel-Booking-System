@@ -129,6 +129,13 @@ Rentals.API ──RabbitMQ──▶ Notification.Service  (RentalCreated)
 - [ ] Kiralama akışı — frontend'den kiralama yapabilme
 - [ ] LLM entegrasyonu — akıllı araç önerisi, doğal dil arama
 - [ ] Admin paneli — araç ekleme/düzenleme arayüzü
+- [x] Catalog.API — VehicleUpdated / VehicleDeleted event consumer (Rentals tarafında)
+- [x] Rentals.API — GetAllRentals endpoint yetkilendirmesi
+- [x] Güvenlik iyileştirmeleri (User Secrets geliştirme, environment variables production)
+- [ ] Kullanıcı servisi (ayrı mikroservis)
+- [x] API Gateway (YARP, port 5100)
+- [x] Health check endpoint'leri (`/health`)
+- [ ] CI/CD pipeline
 
 ---
 
