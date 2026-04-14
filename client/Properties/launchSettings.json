@@ -1,0 +1,12 @@
+{
+  "profiles": {
+    "Next.js": {
+      "commandName": "Executable",
+      "executablePath": "cmd.exe",
+      "commandLineArgs": "/k npm run dev",
+      "workingDirectory": ".",
+      "launchBrowser": true,
+      "launchUrl": "http://localhost:3000"
+    }
+  }
+}
